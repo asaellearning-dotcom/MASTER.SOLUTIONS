@@ -1,6 +1,5 @@
 import { useEffect, useState } from "react";
-import {Box, Button, CloseButton, Dialog, Field, Input, Menu, Portal, Text, For, NativeSelect,} from "@chakra-ui/react";
-import { Page, Text as TextPdf, View, Document, StyleSheet, PDFViewer } from '@react-pdf/renderer';
+import {Box, Button, CloseButton, Dialog, Field, Input, Menu, Portal, Text, NativeSelect,} from "@chakra-ui/react";
 import { jsPDF } from 'jspdf';
 
 import { SaleCartItem } from "./sale-cart-item";
@@ -160,19 +159,6 @@ export type Invoice = {
     } | null;
 };
 
-
-// Create styles
-const styles = StyleSheet.create({
-  page: {
-    // flexDirection: 'row',
-    // backgroundColor: '#E4E4E4'
-  },
-  section: {
-    margin: 0,
-    padding: 0,
-    flexGrow: 1
-  }
-});
 
 // Create Document Component
 const InvoicePDFView = ({invoice, onClose}: {invoice: Invoice, onClose(): void}) => {

@@ -3,8 +3,6 @@ const { hashPassword } = require('../password');
 
 
 async function findUserProfile(userEmail, businessNit) {
-    console.log(userEmail, businessNit)
-
     try {
        
         const user = await knex('users')

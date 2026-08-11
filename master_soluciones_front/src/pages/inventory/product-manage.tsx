@@ -1,6 +1,5 @@
-import { ProductTable } from "@/components/ui/product-table"
-import { Box, Button, Heading, Icon, Input, Field, Text, Table, Menu, Portal, type FileUploadFileChangeDetails, Pagination, ButtonGroup, IconButton, NativeSelect, HStack, Spinner  } from "@chakra-ui/react"
-import { FaBoxOpen, FaTruckRampBox } from "react-icons/fa6"
+import { Box, Button, Heading, Icon, Input, Text, Table, Menu, Portal, type FileUploadFileChangeDetails, Pagination, ButtonGroup, IconButton, NativeSelect, HStack, Spinner  } from "@chakra-ui/react"
+import { FaTruckRampBox } from "react-icons/fa6"
 
 
 

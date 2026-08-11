@@ -1,7 +1,13 @@
 require('dotenv').config();
 
+const fs = require('node:fs');
+const path = require('node:path');
 const express = require('express');
 const cors = require('cors');
+
+const UPLOADS_DIR = path.join(__dirname, 'uploads');
+
+fs.mkdirSync(UPLOADS_DIR, { recursive: true });
 
 const app = express();
 app.use(cors());

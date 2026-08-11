@@ -2,8 +2,6 @@ const knex = require('../knexfile');
 
 
 async function findCustomer(userEmail, businessNit) {
-    console.log(userEmail, businessNit)
-
     try {
        
         const user = await knex('users')

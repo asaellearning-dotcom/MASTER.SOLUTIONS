@@ -1,4 +1,4 @@
-import { Heading, Button, Separator, Icon, Box, Text } from "@chakra-ui/react";
+import { Heading, Button, Icon, Box } from "@chakra-ui/react";
 import { FaCartShopping } from "react-icons/fa6";
 import { TbInvoice } from "react-icons/tb";
 import { FaWallet } from "react-icons/fa6";

@@ -15,7 +15,6 @@ router.post('/login', async (req, res) => {
         }
 
         const result = await db.users.findUserProfile(req.body.email, req.body.businessNumber);
-        console.log(result);
 
         if(result.success && result.data.length === 0) {
             return res.status(400).json({ok: false, message: 'Invalid credentials' });

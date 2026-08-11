@@ -18,7 +18,6 @@ router.post('/', authenticateToken, authorizeRoles(ROLES.ADMIN, ROLES.CASHIER), 
             req.body.items.map(item => [item.productCode, item])
         );
         const pcodes = Array.from(items.keys());
-        console.log('user = ', user);
         
         const { data: paymentMethods } = await db.sysEntities.getSysPaymentMethods();
         const paymentMethodObj = paymentMethods.find(method => method.id === body.paymentMethod);
@@ -76,8 +75,8 @@ router.post('/', authenticateToken, authorizeRoles(ROLES.ADMIN, ROLES.CASHIER), 
         const mm = String(today.getMonth() + 1).padStart(2, '0'); 
         const dd = String(today.getDate()).padStart(2, '0');
 
-        // 3. Unir todo con el prefijo de tu factura
-        const invoiceNumber = `FACN${invoiceCount}-${yyyy}${mm}${dd}`;
+        // 3. Unir todo con el prefijo de tu factura + PK del negocio
+        const invoiceNumber = `FACN${user.businessId}${invoiceCount}-${yyyy}${mm}${dd}`;
         
         const invoice = {
             total,

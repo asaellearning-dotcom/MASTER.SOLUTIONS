@@ -205,7 +205,6 @@ export const BusinessProfileSection = () => {
                                 <NativeSelect.Field
                                     value={form.businessNumberType}
                                     onChange={(e) => updateField('businessNumberType', e.target.value)}
-                                    disabled={!isEditing}
                                 >
                                     <option value="NIT">NIT</option>
                                     <option value="RUT">RUT</option>

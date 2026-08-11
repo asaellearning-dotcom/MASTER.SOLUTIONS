@@ -1,4 +1,4 @@
-import { Heading, Button, Separator, Icon, Box, Text } from "@chakra-ui/react";
+import { Heading, Button, Icon, Box } from "@chakra-ui/react";
 import { FaBox } from "react-icons/fa6";
 import { FaTruckRampBox } from "react-icons/fa6";
 import { NavLink } from "react-router";

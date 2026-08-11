@@ -1,11 +1,10 @@
-import { Stack, Box, Drawer, Button, CloseButton,  Portal, useBreakpointValue, Icon, Heading, Text, Separator   } from '@chakra-ui/react'
+import { Box, Drawer, Button, CloseButton,  Portal, useBreakpointValue, Icon, Heading, Text, Separator   } from '@chakra-ui/react'
 
 
 import { FaStore } from "react-icons/fa6";
 import { FaCircleUser } from "react-icons/fa6";
 import { ImStatsDots } from "react-icons/im";
 import { FaGear, FaPowerOff } from "react-icons/fa6";
-import { BiSolidReport } from "react-icons/bi";
 import { FaUsers } from "react-icons/fa";
 import { MdPointOfSale } from "react-icons/md";
 import { FaBoxesStacked } from "react-icons/fa6";

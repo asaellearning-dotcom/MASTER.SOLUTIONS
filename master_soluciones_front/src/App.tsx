@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react';
+import { useEffect } from 'react';
 import { SideBar } from './components/ui/sidebar';
 import { Outlet, useNavigate } from 'react-router';
 import { Box } from '@chakra-ui/react';
