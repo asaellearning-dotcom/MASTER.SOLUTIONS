@@ -10,11 +10,26 @@ const { hashPassword, verifyPassword } = require('../password');
 router.post('/login', async (req, res) => {
 
     try {
-        if(!req.body.email || !req.body.businessNumber ) {
-            return res.status(400).json({ok: false, error: 'email and business number  required'});
+        const businessNumber = String(req.body.businessNumber || '').trim();
+        const email = String(req.body.email || '').trim();
+        const documentId = String(req.body.documentId || '').trim();
+        const password = req.body.password;
+
+        if (!businessNumber || !password) {
+            return res.status(400).json({
+                ok: false,
+                message: 'NIT/RUT, contraseña y correo o documento son requeridos',
+            });
         }
 
-        const result = await db.users.findUserProfile(req.body.email, req.body.businessNumber);
+        if (!email && !documentId) {
+            return res.status(400).json({
+                ok: false,
+                message: 'Ingresa correo electrónico o documento',
+            });
+        }
+
+        const result = await db.users.findUserProfile(businessNumber, { email, documentId });
 
         if(result.success && result.data.length === 0) {
             return res.status(400).json({ok: false, message: 'Invalid credentials' });
@@ -53,7 +68,7 @@ router.post('/login', async (req, res) => {
             await db.users.updateUserPassword(payload.userId, hashedPassword);
         }
 
-        const { password, ...safePayload } = payload;
+        const { password: _password, ...safePayload } = payload;
         const token = jwt.sign(safePayload, SECRET_KEY, { expiresIn: '24h' });
 
         res.json({

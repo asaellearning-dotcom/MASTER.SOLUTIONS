@@ -2,10 +2,16 @@ const knex = require('../knexfile');
 const { hashPassword } = require('../password');
 
 
-async function findUserProfile(userEmail, businessNit) {
+async function findUserProfile(businessNumber, { email, documentId } = {}) {
     try {
-       
-        const user = await knex('users')
+        const emailTrimmed = String(email || '').trim();
+        const documentTrimmed = String(documentId || '').trim();
+
+        if (!emailTrimmed && !documentTrimmed) {
+            return { success: false, data: [], error: 'email or documentId required' };
+        }
+
+        const query = knex('users')
             .join('business', 'users.business_id', '=', 'business.id')
             .leftJoin('sys_user_roles', 'users.role_id', '=', 'sys_user_roles.id')
             .select(
@@ -22,17 +28,21 @@ async function findUserProfile(userEmail, businessNit) {
                 'business.business_number_type as businessNumberType',
                 'business.id as businessId'
             )
-            .where('users.email', '=', userEmail)
-            .where('business.business_number', '=', businessNit)
+            .where('business.business_number', '=', businessNumber);
 
+        if (emailTrimmed) {
+            query.andWhere('users.email', '=', emailTrimmed);
+        } else {
+            query.andWhere('users.document_number', '=', documentTrimmed);
+        }
+
+        const user = await query;
 
         return {success: true, data: user}
     } catch (error) {
         return {success: false, data: null, error}
     }
-
-
-};
+}
 
 async function getUsers(businessId, page = 1, pageSize = 10, search = '') {
     const offset = (page - 1) * pageSize;

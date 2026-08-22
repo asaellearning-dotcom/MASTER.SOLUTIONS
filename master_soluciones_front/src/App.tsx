@@ -1,13 +1,14 @@
 import { useEffect } from 'react';
-import { SideBar } from './components/ui/sidebar';
+import { SideBar, MOBILE_TOPBAR_HEIGHT } from './components/ui/sidebar';
 import { Outlet, useNavigate } from 'react-router';
-import { Box } from '@chakra-ui/react';
+import { Box, useBreakpointValue } from '@chakra-ui/react';
 
 
 
 function App() {
-  
   const navigate = useNavigate();
+  const isMobile = useBreakpointValue({ base: true, lg: false });
+
   useEffect(() => {
     const token = localStorage.getItem('jwtToken');
     if (!token){
@@ -16,40 +17,25 @@ function App() {
   }, [])
 
   return (
-    <>
-
-
-    <div style={{
-      // backgroundColor: '#060b14',
-      // backgroundColor: 'white',
-      height: '100vh',
-      // border: '1px solid orange',
-      padding: 0,
-      width: '100%'
-     
-    }}>
-      <div style={{
-        width: '100%',
-        height: '100%',
-        display:'flex', 
-        // border: '1px solid pink',  
-
-      }}>
+    <Box height="100vh" width="100%" padding={0}>
+      <Box
+        width="100%"
+        height="100%"
+        display="flex"
+      >
         <SideBar />
 
-       
-        <Box height={'100vh'} flex={1} bg={'gray.100'} 
-          // border={'1px solid brown'}
-        //  overflow="hidden"
+        <Box
+          flex={1}
+          bg="gray.100"
+          height="100vh"
+          overflow="auto"
+          pt={isMobile ? MOBILE_TOPBAR_HEIGHT : undefined}
         >
           <Outlet />
         </Box>
-  
-      </div>
-    </div>
-    
-     
-    </>
+      </Box>
+    </Box>
   )
 }
 

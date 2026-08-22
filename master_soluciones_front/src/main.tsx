@@ -21,6 +21,8 @@ import { CustomerList } from './pages/customers/customer-list.tsx';
 import { ConfigPage } from './pages/configuracion/index.tsx';
 import { BusinessProfileSection } from './pages/configuracion/business-profile.tsx';
 import { UsersSection } from './pages/configuracion/users-section.tsx';
+import { DashboardPage } from './pages/dashboard/index.tsx';
+import { DashboardOverview } from './pages/dashboard/dashboard-overview.tsx';
 import { RequireRole } from './components/RequireRole.tsx';
 import { ROLES } from './utils/auth.ts';
 
@@ -32,6 +34,16 @@ const router = createBrowserRouter([
       {
         element: <RequireRole allowedRoles={[ROLES.ADMIN]} />,
         children: [
+          {
+            path: "/dashboard",
+            element: <DashboardPage />,
+            children: [
+              {
+                index: true,
+                element: <DashboardOverview />,
+              },
+            ],
+          },
           {
             path: "/inventario",
             element: <InventoryPage />,

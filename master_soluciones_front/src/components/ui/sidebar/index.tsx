@@ -1,15 +1,22 @@
-import { Box, Drawer, Button, CloseButton,  Portal, useBreakpointValue, Icon, Heading, Text, Separator   } from '@chakra-ui/react'
-
-
-import { FaStore } from "react-icons/fa6";
-import { FaCircleUser } from "react-icons/fa6";
-import { ImStatsDots } from "react-icons/im";
-import { FaGear, FaPowerOff } from "react-icons/fa6";
-import { FaUsers } from "react-icons/fa";
-import { MdPointOfSale } from "react-icons/md";
-import { FaBoxesStacked } from "react-icons/fa6";
+import {
+    Box,
+    Drawer,
+    Button,
+    CloseButton,
+    Portal,
+    useBreakpointValue,
+    Icon,
+    Heading,
+    Text,
+    Separator,
+} from '@chakra-ui/react';
+import { FaStore, FaCircleUser, FaGear, FaPowerOff, FaBoxesStacked } from 'react-icons/fa6';
+import { ImStatsDots } from 'react-icons/im';
+import { FaUsers } from 'react-icons/fa';
+import { MdPointOfSale, MdMenu } from 'react-icons/md';
 import { NavLink, useLocation, useNavigate } from 'react-router';
 import type { IconType } from 'react-icons';
+import { useState } from 'react';
 import { getBasicUserData, hasRole, ROLES } from '@/utils/auth';
 
 type SidebarNavItem = {
@@ -23,9 +30,9 @@ type SidebarNavItem = {
 const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
     {
         label: 'Dashboard',
-        to: '/',
+        to: '/dashboard',
         icon: ImStatsDots,
-        isActive: (pathname) => pathname === '/',
+        isActive: (pathname) => pathname === '/' || pathname.startsWith('/dashboard'),
         roles: [ROLES.ADMIN],
     },
     {
@@ -58,12 +65,64 @@ const SIDEBAR_NAV_ITEMS: SidebarNavItem[] = [
     },
 ];
 
-const LogoutButton = () => {
+const SidebarBrandHeader = ({ compact = false }: { compact?: boolean }) => {
+    const userData = getBasicUserData();
+    const roleLabel = userData?.roleName || userData?.roleCode || 'Usuario';
+
+    return (
+        <Box
+            display="flex"
+            flexDirection="column"
+            alignItems="center"
+            px={compact ? '4' : '1.3em'}
+            py={compact ? '4' : '1.3em'}
+            gap="2"
+        >
+            <Icon fontSize={compact ? '4xl' : '5xl'} color="#3b82f6">
+                <FaStore />
+            </Icon>
+
+            <Heading
+                color="gray.800"
+                size={compact ? 'md' : 'lg'}
+                fontWeight="bolder"
+                letterSpacing="tight"
+                textAlign="center"
+            >
+                Master Soluciones
+            </Heading>
+
+            <Box
+                px="3"
+                py="2"
+                width="100%"
+                borderRadius="md"
+                display="flex"
+                justifyContent="center"
+                alignItems="center"
+                bg="rgba(59,130,246,0.12)"
+                border="1px solid rgba(59,130,246,0.25)"
+            >
+                <Box display="flex" alignItems="center" gap="2">
+                    <Icon color="#2563eb" fontSize="lg">
+                        <FaCircleUser />
+                    </Icon>
+                    <Text color="gray.800" fontWeight="semibold" fontSize="sm">
+                        {roleLabel}
+                    </Text>
+                </Box>
+            </Box>
+        </Box>
+    );
+};
+
+const LogoutButton = ({ onLogout }: { onLogout?: () => void }) => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
         localStorage.removeItem('jwtToken');
         localStorage.removeItem('basicUSerData');
+        onLogout?.();
         navigate('/login');
     };
 
@@ -88,30 +147,22 @@ const LogoutButton = () => {
     );
 };
 
-export const SidebarContent = () => {
+export const SidebarContent = ({ onNavigate }: { onNavigate?: () => void }) => {
     const { pathname } = useLocation();
     const visibleItems = SIDEBAR_NAV_ITEMS.filter((item) => hasRole(...item.roles));
 
     return (
-        <Box border={'1px solid transparent'} marginTop={'1.5'} width="100%" flex="1">
+        <Box width="100%" flex="1" py="1">
             {visibleItems.map((item) => {
                 const active = item.isActive(pathname);
                 const ItemIcon = item.icon;
 
                 return (
-                    <div
-                        key={item.label}
-                        style={{
-                            padding: '0.55em 1.3em',
-                            border: '1px solid transparent',
-                            display: 'block',
-                        }}
-                    >
-                        <NavLink to={item.to} end={item.to === '/'}>
+                    <Box key={item.label} px="1.3em" py="1">
+                        <NavLink to={item.to} end={item.to === '/'} onClick={onNavigate}>
                             <Box
-                                display={'flex'}
-                                justifyContent={'start'}
-                                alignItems={'center'}
+                                display="flex"
+                                alignItems="center"
                                 width="100%"
                                 px="3"
                                 py="2.5"
@@ -119,7 +170,9 @@ export const SidebarContent = () => {
                                 bg={active ? 'rgba(59,130,246,0.12)' : 'transparent'}
                                 borderLeftWidth="3px"
                                 borderLeftColor={active ? '#3b82f6' : 'transparent'}
-                                _hover={{ bg: active ? 'rgba(59,130,246,0.12)' : 'rgba(148,163,184,0.12)' }}
+                                _hover={{
+                                    bg: active ? 'rgba(59,130,246,0.12)' : 'rgba(148,163,184,0.12)',
+                                }}
                                 transition="background 0.15s ease"
                             >
                                 <Icon color={active ? '#3b82f6' : '#94a3b8'} fontSize="md">
@@ -127,147 +180,149 @@ export const SidebarContent = () => {
                                 </Icon>
                                 <Text
                                     color={active ? 'blue.500' : 'gray.800'}
-                                    marginLeft={'2.5'}
+                                    marginLeft="2.5"
                                     fontWeight={active ? 'semibold' : 'normal'}
                                 >
                                     {item.label}
                                 </Text>
                             </Box>
                         </NavLink>
-                    </div>
+                    </Box>
                 );
             })}
-
-            {/* <div style={{padding: '1.3em', border: '1px solid transparent', display: 'inline-block'}}>
-               <NavLink to={'/'} >
-                    <Box display={'flex'} justifyContent={'start'} alignItems={'center'}>
-                        <Icon color={'#94a3b8'}>
-                            <BiSolidReport />
-                        </Icon>
-                        <Text color={'gray.800'} marginLeft={'2.5'}>Reportes</Text>
-                    </Box>
-               </NavLink>
-           </div> */}
         </Box>
     );
-}
+};
 
-export const SideBarMobile =  () => {
-  return (
-    <Drawer.Root placement={'start'} >
-      <Drawer.Trigger asChild>
-        <Button variant="outline" size="sm" position={'absolute'} left={0} top={0} marginBottom={'3em'}>
-          Open Drawer
-        </Button>
-      </Drawer.Trigger>
-      <Portal >
-        <Drawer.Backdrop />
-        <Drawer.Positioner>
-          <Drawer.Content backgroundColor={'rgba(10, 15, 30, 0.9)'}>
-            <Drawer.Header>
-              <Drawer.Title>Drawer Title <i style={{fontSize: '40px', content: "\f54e", color: 'blue'}}></i>  </Drawer.Title>
-            </Drawer.Header> 
-            <Drawer.Body display="flex" flexDirection="column">
-              <SidebarContent />
-              <LogoutButton />
-            </Drawer.Body>
-            <Drawer.Footer>
-              {/* <Button variant="outline">Cancel</Button>
-              <Button>Save</Button> */}
-            </Drawer.Footer>
-            <Drawer.CloseTrigger asChild>
-              <CloseButton size="sm" />
-            </Drawer.CloseTrigger>
-          </Drawer.Content>
-        </Drawer.Positioner>
-      </Portal>
-    </Drawer.Root>
-  )
+export const SideBarMobile = () => {
+    const [open, setOpen] = useState(false);
+
+    const closeDrawer = () => setOpen(false);
+
+    return (
+        <>
+            <Box
+                position="fixed"
+                top="0"
+                left="0"
+                right="0"
+                zIndex="20"
+                height="3.5rem"
+                bg="white"
+                borderBottom="1px solid"
+                borderColor="gray.200"
+                display="flex"
+                alignItems="center"
+                px="4"
+                gap="3"
+                boxShadow="sm"
+            >
+                <Button
+                    variant="ghost"
+                    size="sm"
+                    minW="auto"
+                    px="2"
+                    color="gray.700"
+                    _hover={{ bg: 'gray.100' }}
+                    onClick={() => setOpen(true)}
+                    aria-label="Abrir menú"
+                >
+                    <Icon fontSize="xl">
+                        <MdMenu />
+                    </Icon>
+                </Button>
+
+                <Box display="flex" alignItems="center" gap="2" minW="0">
+                    <Icon fontSize="xl" color="#3b82f6">
+                        <FaStore />
+                    </Icon>
+                    <Text
+                        fontWeight="bold"
+                        color="gray.800"
+                        fontSize="sm"
+                        whiteSpace="nowrap"
+                        overflow="hidden"
+                        textOverflow="ellipsis"
+                    >
+                        Master Soluciones
+                    </Text>
+                </Box>
+            </Box>
+
+            <Drawer.Root
+                open={open}
+                placement="start"
+                onOpenChange={(details) => setOpen(details.open)}
+            >
+                <Portal>
+                    <Drawer.Backdrop bg="blackAlpha.400" />
+                    <Drawer.Positioner>
+                        <Drawer.Content
+                            bg="white"
+                            maxW="18rem"
+                            boxShadow="lg"
+                        >
+                            <Drawer.Header
+                                borderBottomWidth="1px"
+                                borderColor="gray.200"
+                                py="3"
+                                px="4"
+                            >
+                                <Drawer.Title fontSize="md" fontWeight="semibold" color="gray.800">
+                                    Menú
+                                </Drawer.Title>
+                                <Drawer.CloseTrigger asChild position="absolute" top="3" right="3">
+                                    <CloseButton size="sm" />
+                                </Drawer.CloseTrigger>
+                            </Drawer.Header>
+
+                            <Drawer.Body
+                                display="flex"
+                                flexDirection="column"
+                                p="0"
+                                overflowY="auto"
+                            >
+                                <SidebarBrandHeader compact />
+                                <Separator borderColor="gray.200" width="85%" mx="auto" />
+                                <SidebarContent onNavigate={closeDrawer} />
+                                <Box mt="auto">
+                                    <LogoutButton onLogout={closeDrawer} />
+                                </Box>
+                            </Drawer.Body>
+                        </Drawer.Content>
+                    </Drawer.Positioner>
+                </Portal>
+            </Drawer.Root>
+        </>
+    );
 };
 
 export const SideBarDesktop = () => {
-    const userData = getBasicUserData();
-    const roleLabel = userData?.roleName || userData?.roleCode || 'Usuario';
-
-    return <>
-    
+    return (
         <Box
-            height={'100vh'}
-            width={{xl: '17%', lg: '17%'}}
-            // borderRightColor={'gray.700'}
-            borderRightWidth={'thin'}
-            // bg={'gray.200'}
-            // backgroundColor={'rgba(10, 15, 30, 0.9)'}
-            // display={{sm: 'none', lg: 'block'}}
-            
+            height="100vh"
+            width={{ xl: '17%', lg: '17%' }}
+            borderRightWidth="1px"
+            borderRightColor="gray.200"
+            bg="white"
             padding={0}
             margin={0}
             display="flex"
             flexDirection="column"
+            flexShrink={0}
         >
-            <div style={{display: 'flex', flexDirection: 'column', justifyContent: 'center', alignItems: 'center', padding: '1.3em', }}>
-               
-              <div>
-                    <Icon fontSize={'5xl'} color="#3b82f6">
-                        <FaStore />
-                    </Icon>
-              </div>
-              
-              <div>
-                <Heading color={'white'} padding={'2.5'}>Empresa</Heading>
-              </div>
-
-              <div style={{
-                    padding: '.65em .85em',
-                    width: '100%',
-                    borderRadius: '.5em',
-                    display: 'flex',
-                    justifyContent: 'center',
-                    alignItems: 'center',
-                    background: 'rgba(59,130,246,0.15)',
-                    border: '1px solid rgba(59,130,246,0.35)',
-                }}
-                >
-
-                    <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center', gap: '0.55em', width: '100%' }}>
-                         <Icon color="#2563eb" fontSize={'xl'}>
-                            <FaCircleUser />
-                        </Icon>
-                        <Text
-                            color="gray.800"
-                            fontWeight="bold"
-                            fontSize="md"
-                            letterSpacing="0.02em"
-                        >
-                            {roleLabel}
-                        </Text>
-                        
-                    </div>
-
-               
-              </div>
-                
-            </div>
-           
-            <div style={{display: 'flex', justifyContent: 'center', alignItems: 'center'}}>
-                <Separator width={'80%'} borderColor={'gray.700'} />
-            </div>
-
+            <SidebarBrandHeader />
+            <Separator width="80%" borderColor="gray.200" mx="auto" />
             <SidebarContent />
             <LogoutButton />
         </Box>
-    
-    
-    </>
+    );
 };
 
-
 export const SideBar = () => {
-
     const isMobile = useBreakpointValue({ base: true, lg: false });
 
-    return <>
-        {isMobile && <SideBarMobile />}
-        {!isMobile && <SideBarDesktop />}
-    </>
-}
+    return isMobile ? <SideBarMobile /> : <SideBarDesktop />;
+};
+
+export const MOBILE_TOPBAR_HEIGHT = '3.5rem';

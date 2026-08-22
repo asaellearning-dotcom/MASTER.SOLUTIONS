@@ -6,6 +6,7 @@ const customers = require('./customer');
 const sysEntities = require('./sysentity');
 const business = require('./business');
 const licenses = require('./license');
+const statistics = require('./statistics');
 
 
 module.exports = {
@@ -17,4 +18,5 @@ module.exports = {
     sysEntities,
     business,
     licenses,
+    statistics,
 }

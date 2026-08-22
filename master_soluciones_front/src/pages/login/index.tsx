@@ -3,23 +3,31 @@ import { useNavigate } from 'react-router';
 import {
     Box,
     Button,
+    ButtonGroup,
     Field,
     Heading,
     Icon,
+    IconButton,
     Input,
     Text,
     VStack,
 } from "@chakra-ui/react";
 import { useEffect, useState } from "react";
 import { FaStore } from "react-icons/fa6";
+import { LuEye, LuEyeOff } from "react-icons/lu";
 import { API_URL } from '@/config';
 import { ROLES } from '@/utils/auth';
+
+type LoginMethod = 'email' | 'document';
 
 export const LoginPage = () => {
     const navigate = useNavigate();
     const [businessNumber, setBusinessNumber] = useState('');
+    const [loginMethod, setLoginMethod] = useState<LoginMethod>('email');
     const [userEmail, setUserEmail] = useState('');
+    const [documentId, setDocumentId] = useState('');
     const [password, setPassword] = useState('');
+    const [showPassword, setShowPassword] = useState(false);
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState('');
 
@@ -28,13 +36,19 @@ export const LoginPage = () => {
         if (token) {
             const raw = localStorage.getItem('basicUSerData');
             const roleCode = raw ? JSON.parse(raw)?.roleCode : null;
-            navigate(roleCode === ROLES.CASHIER ? '/ventas/registrar' : '/inventario');
+            navigate(roleCode === ROLES.CASHIER ? '/ventas/registrar' : '/dashboard');
         }
     }, []);
 
     const signIn = async () => {
-        if (!userEmail || !password || !businessNumber) {
-            setError('Completa NIT/RUT, correo y contraseña');
+        const loginValue = loginMethod === 'email' ? userEmail.trim() : documentId.trim();
+
+        if (!loginValue || !password || !businessNumber.trim()) {
+            setError(
+                loginMethod === 'email'
+                    ? 'Completa NIT/RUT, correo y contraseña'
+                    : 'Completa NIT/RUT, documento y contraseña'
+            );
             return;
         }
 
@@ -43,11 +57,21 @@ export const LoginPage = () => {
 
         try {
             const url = `${API_URL}/users/login`;
-            const body = {
-                email: userEmail,
+            const body: {
+                password: string;
+                businessNumber: string;
+                email?: string;
+                documentId?: string;
+            } = {
                 password,
-                businessNumber,
+                businessNumber: businessNumber.trim(),
             };
+
+            if (loginMethod === 'email') {
+                body.email = loginValue;
+            } else {
+                body.documentId = loginValue;
+            }
 
             const { data } = await axios.post(url, body);
 
@@ -61,7 +85,7 @@ export const LoginPage = () => {
             navigate(
                 data.userData?.roleCode === ROLES.CASHIER
                     ? '/ventas/registrar'
-                    : '/inventario'
+                    : '/dashboard'
             );
         } catch (err: any) {
             setError(
@@ -143,37 +167,111 @@ export const LoginPage = () => {
                         </Field.Root>
 
                         <Field.Root>
-                            <Field.Label color="gray.700">Correo electrónico</Field.Label>
-                            <Input
-                                border="1px solid"
-                                borderColor="gray.300"
-                                bg="white"
-                                color="gray.800"
-                                type="email"
-                                placeholder="usuario@empresa.com"
-                                value={userEmail}
-                                onChange={(e) => {
-                                    setUserEmail(e.target.value);
-                                    setError('');
-                                }}
-                            />
+                            <Field.Label color="gray.700">Iniciar sesión con</Field.Label>
+                            <ButtonGroup size="sm" variant="outline" w="100%">
+                                <Button
+                                    flex="1"
+                                    onClick={() => {
+                                        setLoginMethod('email');
+                                        setDocumentId('');
+                                        setError('');
+                                    }}
+                                    bg={loginMethod === 'email' ? 'gray.700' : 'white'}
+                                    color={loginMethod === 'email' ? 'white' : 'gray.700'}
+                                    borderColor="gray.300"
+                                    _hover={{
+                                        bg: loginMethod === 'email' ? 'gray.800' : 'gray.50',
+                                    }}
+                                >
+                                    Correo
+                                </Button>
+                                <Button
+                                    flex="1"
+                                    onClick={() => {
+                                        setLoginMethod('document');
+                                        setUserEmail('');
+                                        setError('');
+                                    }}
+                                    bg={loginMethod === 'document' ? 'gray.700' : 'white'}
+                                    color={loginMethod === 'document' ? 'white' : 'gray.700'}
+                                    borderColor="gray.300"
+                                    _hover={{
+                                        bg: loginMethod === 'document' ? 'gray.800' : 'gray.50',
+                                    }}
+                                >
+                                    Documento
+                                </Button>
+                            </ButtonGroup>
                         </Field.Root>
+
+                        {loginMethod === 'email' ? (
+                            <Field.Root>
+                                <Field.Label color="gray.700">Correo electrónico</Field.Label>
+                                <Input
+                                    border="1px solid"
+                                    borderColor="gray.300"
+                                    bg="white"
+                                    color="gray.800"
+                                    type="email"
+                                    placeholder="usuario@empresa.com"
+                                    value={userEmail}
+                                    onChange={(e) => {
+                                        setUserEmail(e.target.value);
+                                        setError('');
+                                    }}
+                                />
+                            </Field.Root>
+                        ) : (
+                            <Field.Root>
+                                <Field.Label color="gray.700">Documento</Field.Label>
+                                <Input
+                                    border="1px solid"
+                                    borderColor="gray.300"
+                                    bg="white"
+                                    color="gray.800"
+                                    placeholder="Número de documento"
+                                    value={documentId}
+                                    onChange={(e) => {
+                                        setDocumentId(e.target.value);
+                                        setError('');
+                                    }}
+                                />
+                            </Field.Root>
+                        )}
 
                         <Field.Root>
                             <Field.Label color="gray.700">Contraseña</Field.Label>
-                            <Input
-                                border="1px solid"
-                                borderColor="gray.300"
-                                bg="white"
-                                color="gray.800"
-                                type="password"
-                                placeholder="Tu contraseña"
-                                value={password}
-                                onChange={(e) => {
-                                    setPassword(e.target.value);
-                                    setError('');
-                                }}
-                            />
+                            <Box position="relative" w="100%">
+                                <Input
+                                    w="100%"
+                                    border="1px solid"
+                                    borderColor="gray.300"
+                                    bg="white"
+                                    color="gray.800"
+                                    type={showPassword ? 'text' : 'password'}
+                                    placeholder="Tu contraseña"
+                                    value={password}
+                                    pr="10"
+                                    onChange={(e) => {
+                                        setPassword(e.target.value);
+                                        setError('');
+                                    }}
+                                />
+                                <IconButton
+                                    aria-label={showPassword ? 'Ocultar contraseña' : 'Mostrar contraseña'}
+                                    position="absolute"
+                                    right="1"
+                                    top="50%"
+                                    transform="translateY(-50%)"
+                                    size="sm"
+                                    variant="ghost"
+                                    color="gray.500"
+                                    _hover={{ color: 'gray.700', bg: 'transparent' }}
+                                    onClick={() => setShowPassword((prev) => !prev)}
+                                >
+                                    {showPassword ? <LuEyeOff /> : <LuEye />}
+                                </IconButton>
+                            </Box>
                         </Field.Root>
 
                         {error && (
